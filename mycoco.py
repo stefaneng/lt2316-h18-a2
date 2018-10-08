@@ -124,8 +124,9 @@ def iter_captions_cats(cats, intersection=False):
     anns = capcoco.loadAnns(annids)
     random_anns = random.sample(anns, k=len(anns))
     for a in random_anns:
-        # Print out the name of the category, rather than 
-        a['categories'] = [annotcoco.cats[imgid]['name'] for imgid in image_cat[a['image_id']]]
+        # Print out the name of the category if uncommented
+        #a['categories'] = [annotcoco.cats[imgid]['name'] for imgid in image_cat[a['image_id']]]
+        a['categories'] = [catid for catid in image_cat[a['image_id']]]
         yield a
     
     
