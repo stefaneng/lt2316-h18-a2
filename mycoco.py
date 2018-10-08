@@ -3,6 +3,10 @@
 # to, or implement otherwise.
 
 import sys
+import itertools
+import json
+import pickle
+import os.path
 
 # This is evil, forgive me, but practical under the circumstances.
 # It's a hardcoded access to the COCO API.  
@@ -72,6 +76,58 @@ def query(queries, exclusive=True):
             return [list(y) for y in imgsets]
     else:
         return [list(imgsets[0])]
+    
+def iter_captions_cats(cats, intersection=False):
+    '''
+    `cats` is a 1d array of categories
+    `exclusive` is a boolean that indicates whether the images should contain ALL categories in `cat` or 
+                return images that contain at least one of the captions.
+    Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)    
+    '''
+    # Manually access the json since I couldn't figure out how to do this with COCOAPI
+    # Could test if we need to recompute
+    #     if not image_cat:
+    #    global image_cat
+    anno_json = None
+    with open(TRAIN_ANNOT_FILE) as fa:
+        anno_json = json.load(fa)
+
+    # Create an image id: category dictionary that we save between runs
+    # to save time
+    image_cat = {}
+    if os.path.isfile("image_categories.pickle"):
+        with open('image_categories.pickle', 'rb') as f:
+            image_cat = pickle.load(f)
+    else:        
+        # Create a dictionary with categories for each image
+        for a in anno_json['annotations']:
+            img_id = a['image_id']
+            cat_id = a['category_id']
+            if img_id not in image_cat:
+                image_cat[img_id] = set()
+            if cat_id not in image_cat[img_id]:
+                image_cat[img_id].add(cat_id)
+        
+        # Write to file
+        with open('image_categories.pickle', 'wb+') as f:
+            pickle.dump(image_cat, f)
+        
+    # if exlusive: surround with []
+    if intersection:
+        cats = [cats]
+    # Query non-exclusive so we get images from intersection as well
+    query_res = query(cats, exclusive=False)
+    # Join the results from the query into one set
+    imageids = set(itertools.chain(* query_res))
+   
+    annids =  capcoco.getAnnIds(imgIds=imageids)
+    anns = capcoco.loadAnns(annids)
+    random_anns = random.sample(anns, k=len(anns))
+    for a in random_anns:
+        # Print out the name of the category, rather than 
+        a['categories'] = [annotcoco.cats[imgid]['name'] for imgid in image_cat[a['image_id']]]
+        yield a
+    
     
 def iter_captions(idlists, cats, batch=1):
     '''
