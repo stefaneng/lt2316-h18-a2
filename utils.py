@@ -12,9 +12,11 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10):
            'caption': 'Four horses stand in outside, metal, holding pens.',
            'categories': [8, 19]
         }
-    `num_words` is the max words in the vocabulary. Anything else replaced with 'UNK'
+    `num_words` is the max words in the vocabulary. Anything outside of vocabulary is removed.
     `seq_maxlen` is the max number of words in the sequence. 
-                 Each vector uses at most `seq_maxlen` - 1 words to predict the last word.
+                 Each vector uses at most `seq_maxlen` previous words to predict the last word.
+                
+    returns X, y_categories, tokenizer
     """
     
     captions = []
@@ -22,7 +24,9 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10):
     for c in img_captions:
         captions.append(c['caption'])
         categories.append(c['categories'])
-    tokenizer = Tokenizer(num_words=num_words, oov_token='UNK')
+    # Currently just remove words outside of the vocabulary
+    # Will experiment to see what is best method
+    tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(captions)
     
     encoded = tokenizer.texts_to_sequences(captions)
@@ -57,4 +61,4 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10):
     # Make all sequences same length by adding 0 to end
     X = pad_sequences(seqs, padding='post')
     
-    return X, y_categories
+    return X, y_categories, tokenizer
