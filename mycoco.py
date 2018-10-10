@@ -80,14 +80,18 @@ def query(queries, exclusive=True):
     else:
         return [list(imgsets[0])]
     
-def iter_captions_cats(cats):
+def iter_captions_cats(cats=None):
     '''
-    `cats` is a 1d array of categories
+    `cats` is a 1d array of categories. If `cats` is None, then we get all image captions
     Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)    
     '''
     # Create an image id: category dictionary that we save between runs
     # to save time
-    image_cat = {}
+    image_cat = {}    
+    
+    anno_json = None
+    with open(TRAIN_ANNOT_FILE) as fa:
+        anno_json = json.load(fa)
     if os.path.isfile("image_categories.pickle"):
         with open('image_categories.pickle', 'rb') as f:
             image_cat = pickle.load(f)
@@ -106,6 +110,10 @@ def iter_captions_cats(cats):
         with open('image_categories.pickle', 'wb+') as f:
             pickle.dump(image_cat, f)
 
+    if not cats:
+        # Get all images with this query
+        cats = ['']
+
     # Query non-exclusive so we get images from intersection as well
     query_res = query(cats, exclusive=False)
     # Join the results from the query into one set
@@ -117,7 +125,10 @@ def iter_captions_cats(cats):
     for a in random_anns:
         # Print out the name of the category if uncommented
         #a['categories'] = [annotcoco.cats[imgid]['name'] for imgid in image_cat[a['image_id']]]
-        a['categories'] = [catid for catid in image_cat[a['image_id']]]
+        try:
+            a['categories'] = [catid for catid in image_cat[a['image_id']]]
+        except KeyError as err:
+            a['categories'] = []
         yield a
     
     
