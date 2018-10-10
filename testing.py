@@ -48,4 +48,4 @@ print(model.summary())
 filepath="/scratch/gussteen/testing_weights.{epoch:02d}.hdf5"
 checkpoint = ModelCheckpoint(filepath, verbose=1)
 
-model.fit(X, [y_words, y_categories], callbacks=[checkpoint], epochs=5)
+model.fit(X, [y_words, y_categories], batch_size=128, callbacks=[checkpoint], epochs=5)
