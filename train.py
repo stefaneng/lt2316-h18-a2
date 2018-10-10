@@ -6,6 +6,7 @@
 # Add/update whatever imports you need.
 from argparse import ArgumentParser
 import mycoco
+import cocomodels
 
 # If you do option A, you may want to place your code here.  You can
 # update the arguments as you need.
@@ -15,14 +16,33 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def optB():
+def optB(init_model, categories, out_model, maxinstances, checkpointdir):
+    # TODO: Other values to add as parameters
+    # Number of previous words to use in prediction
+    window_size = 5
     mycoco.setmode('train')
-    print("Option B not implemented!")
+
+    if init_model:
+        # Load the model and only train on the given categories
+        pass
+    else:
+        # Re-train the model on the entired caption dataset
+
+        # Get all the captions and categories
+        alliter = mycoco.iter_captions_cats()
+        allcaptions = list(alliter)
+
+        # Create the training data
+        X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size)
+        print("Created {} training examples.", X.shape[0])
+        history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 100, batch_size = 256, epochs = 20)
+        print(history.history)
 
 # Modify this as needed.
 if __name__ == "__main__":
-    parser = ArgumentParser("Train a model.")    
+    parser = ArgumentParser("Train a model.")
     # Add your own options as flags HERE as necessary (and some will be necessary!).
+    parser.add_argument('--init_model', type=str, help="starting model. Will skip training on entire data set if provided and only retrain on the given categories. (optional)", required=False)
     # You shouldn't touch the arguments below.
     parser.add_argument('-P', '--option', type=str,
                         help="Either A or B, based on the version of the assignment you want to run. (REQUIRED)",
@@ -53,7 +73,7 @@ if __name__ == "__main__":
     if args.option == 'A':
         optA()
     elif args.option == 'B':
-        optB()
+        optB(args.init_model, args.categories, args.modelfile, args.maxinstances, args.checkpointdir)
     else:
         print("Option does not exist.")
         exit(0)
