@@ -56,9 +56,12 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10):
             preds.append(e[-i])
             # Just add the same category over and over
             y_categories.append(new_cat)
+
     y_categories = np.stack(y_categories)
 
     # Make all sequences same length by adding 0 to end
     X = pad_sequences(seqs, padding='post')
     
-    return X, y_categories, tokenizer
+    y_words = to_categorical(preds, num_classes=num_words)
+    
+    return X, y_words, y_categories, tokenizer
