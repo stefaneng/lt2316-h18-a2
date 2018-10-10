@@ -80,11 +80,9 @@ def query(queries, exclusive=True):
     else:
         return [list(imgsets[0])]
     
-def iter_captions_cats(cats, intersection=False):
+def iter_captions_cats(cats):
     '''
     `cats` is a 1d array of categories
-    `exclusive` is a boolean that indicates whether the images should contain ALL categories in `cat` or 
-                return images that contain at least one of the captions.
     Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)    
     '''
     # Create an image id: category dictionary that we save between runs
@@ -107,10 +105,7 @@ def iter_captions_cats(cats, intersection=False):
         # Write to file
         with open('image_categories.pickle', 'wb+') as f:
             pickle.dump(image_cat, f)
-        
-    # if exlusive: surround with []
-    if intersection:
-        cats = [cats]
+
     # Query non-exclusive so we get images from intersection as well
     query_res = query(cats, exclusive=False)
     # Join the results from the query into one set
