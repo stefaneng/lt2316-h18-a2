@@ -54,6 +54,9 @@ def setmode(mode):
 
     annotcoco = COCO(annotfile)
     capcoco = COCO(capfile)
+    
+    # Manually access the json since I couldn't figure out how to do this with COCOAPI
+    anno_json = annotcoco.dataset
 
     
 def query(queries, exclusive=True):
@@ -84,21 +87,14 @@ def iter_captions_cats(cats, intersection=False):
                 return images that contain at least one of the captions.
     Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)    
     '''
-    # Manually access the json since I couldn't figure out how to do this with COCOAPI
-    # Could test if we need to recompute
-    #     if not image_cat:
-    #    global image_cat
-    anno_json = None
-    with open(TRAIN_ANNOT_FILE) as fa:
-        anno_json = json.load(fa)
-
     # Create an image id: category dictionary that we save between runs
     # to save time
     image_cat = {}
     if os.path.isfile("image_categories.pickle"):
         with open('image_categories.pickle', 'rb') as f:
             image_cat = pickle.load(f)
-    else:        
+    else:      
+        print("Creating new image_categories object")
         # Create a dictionary with categories for each image
         for a in anno_json['annotations']:
             img_id = a['image_id']
