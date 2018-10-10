@@ -9,7 +9,7 @@ import pickle
 import os.path
 
 # This is evil, forgive me, but practical under the circumstances.
-# It's a hardcoded access to the COCO API.  
+# It's a hardcoded access to the COCO API.
 COCOAPI_PATH='/scratch/lt2316-h18-resources/cocoapi/PythonAPI/'
 TRAIN_ANNOT_FILE='/scratch/lt2316-h18-resources/coco/annotations/instances_train2017.json'
 VAL_ANNOT_FILE='/scratch/lt2316-h18-resources/coco/annotations/instances_val2017.json'
@@ -41,6 +41,7 @@ def setmode(mode):
     global capfile
     global imgdir
     global annotcoco, capcoco
+    global anno_json
     if mode == "train":
         annotfile = TRAIN_ANNOT_FILE
         capfile = TRAIN_CAP_FILE
@@ -54,16 +55,16 @@ def setmode(mode):
 
     annotcoco = COCO(annotfile)
     capcoco = COCO(capfile)
-    
-    # Manually access the json since I couldn't figure out how to do this with COCOAPI
+
+    # Manually access the json since I couldn't figure out how to get categories with COCOAPI
     anno_json = annotcoco.dataset
 
-    
+
 def query(queries, exclusive=True):
     '''
-    Collects mutually-exclusive lists of COCO ids by queries, so returns 
+    Collects mutually-exclusive lists of COCO ids by queries, so returns
     a parallel list of lists.
-    (Setting 'exclusive' to False makes the lists non-exclusive.)  
+    (Setting 'exclusive' to False makes the lists non-exclusive.)
     e.g., exclusive_query([['toilet', 'boat'], ['umbrella', 'bench']])
     to find two mutually exclusive lists of images, one with toilets and
     boats, and the other with umbrellas and benches in the same image.
@@ -79,23 +80,20 @@ def query(queries, exclusive=True):
             return [list(y) for y in imgsets]
     else:
         return [list(imgsets[0])]
-    
-def iter_captions_cats(cats=None):
+
+def iter_captions_cats(cats=None, maxinstances=None):
     '''
     `cats` is a 1d array of categories. If `cats` is None, then we get all image captions
-    Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)    
+    Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)
     '''
     # Create an image id: category dictionary that we save between runs
     # to save time
-    image_cat = {}    
-    
-    anno_json = None
-    with open(TRAIN_ANNOT_FILE) as fa:
-        anno_json = json.load(fa)
+    image_cat = {}
+
     if os.path.isfile("image_categories.pickle"):
         with open('image_categories.pickle', 'rb') as f:
             image_cat = pickle.load(f)
-    else:      
+    else:
         print("Creating new image_categories object")
         # Create a dictionary with categories for each image
         for a in anno_json['annotations']:
@@ -105,7 +103,7 @@ def iter_captions_cats(cats=None):
                 image_cat[img_id] = set()
             if cat_id not in image_cat[img_id]:
                 image_cat[img_id].add(cat_id)
-        
+
         # Write to file
         with open('image_categories.pickle', 'wb+') as f:
             pickle.dump(image_cat, f)
@@ -116,9 +114,13 @@ def iter_captions_cats(cats=None):
 
     # Query non-exclusive so we get images from intersection as well
     query_res = query(cats, exclusive=False)
+    if maxinstances:
+        # Only take the first `maxinstances` for each query category
+        query_res = [res[:maxinstances] for res in query_res]
+
     # Join the results from the query into one set
     imageids = set(itertools.chain(* query_res))
-   
+
     annids =  capcoco.getAnnIds(imgIds=imageids)
     anns = capcoco.loadAnns(annids)
     random_anns = random.sample(anns, k=len(anns))
@@ -130,12 +132,12 @@ def iter_captions_cats(cats=None):
         except KeyError as err:
             a['categories'] = []
         yield a
-    
-    
+
+
 def iter_captions(idlists, cats, batch=1):
     '''
     Obtains the corresponding captions from multiple COCO id lists.
-    Randomizes the order.  
+    Randomizes the order.
     Returns an infinite iterator (do not convert to list!) that returns tuples (captions, categories)
     as parallel lists at size of batch.
     '''
@@ -148,7 +150,7 @@ def iter_captions(idlists, cats, batch=1):
     for z in zip(idlists, cats):
         for x in z[0]:
             full.append((x, z[1]))
-        
+
     while True:
         randomlist = random.sample(full, k=len(full))
         captions = []
