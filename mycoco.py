@@ -85,7 +85,7 @@ def iter_captions_cats(cats=None, maxinstances=None):
     '''
     `cats` is a 1d array of categories. If `cats` is None, then we get all image captions
     `maxinstances` will give at least this many instances for each image. There may be more from the intersections of
-                   other categories.                    
+                   other categories.
     Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)
     '''
     # Create an image id: category dictionary that we save between runs
@@ -112,16 +112,16 @@ def iter_captions_cats(cats=None, maxinstances=None):
 
     if not cats:
         cats = ['']
-        if maxinstances:            
+        if maxinstances:
             # Query over each category.
             # Extracting each category separately will allow us to only take `maxinstance` number
             cat_objs = annotcoco.loadCats(annotcoco.getCatIds())
-            # All 90 categories will be passed to 
-            cats=[cat['name'] for cat in cat_objs]            
+            # All 90 categories will be passed to
+            cats=[cat['name'] for cat in cat_objs]
 
     # Query non-exclusive so we get images from intersection as well
     query_res = query(cats, exclusive=False)
-   
+
     if maxinstances:
         # Get the annotation ids for each of the queried categories
         # Only take `maxinstances`
@@ -132,7 +132,7 @@ def iter_captions_cats(cats=None, maxinstances=None):
         # Remove duplicates first since we don't need to keep track of how many instances we have
         imageids = set(itertools.chain(* query_res))
         annids = capcoco.getAnnIds(imgIds=imageids)
-    
+
     anns = capcoco.loadAnns(annids)
     random_anns = random.sample(anns, k=len(anns))
     for a in random_anns:

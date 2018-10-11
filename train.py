@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 import mycoco
 import cocomodels
 import utils
+import json
 
 # If you do option A, you may want to place your code here.  You can
 # update the arguments as you need.
@@ -22,6 +23,9 @@ def optB(init_model, categories, out_model, maxinstances, checkpointdir):
     # Number of previous words to use in prediction
     window_size = 5
     vocab_size = 100
+    epochs = 3
+    batch_size = 256
+    logfile = checkpointdir + "train_results.csv"
     mycoco.setmode('train')
 
     if init_model:
@@ -31,14 +35,38 @@ def optB(init_model, categories, out_model, maxinstances, checkpointdir):
         # Re-train the model on the entired caption dataset
 
         # Get all the captions and categories
-        alliter = mycoco.iter_captions_cats()
+        alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
         allcaptions = list(alliter)
 
         # Create the training data
         X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size)
         print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
-        model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size = 256, epochs = 3)
+        model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir,
+                            vocab_size=vocab_size, batch_size = batch_size, epochs = epochs, logfile = logfile)
+        with open(checkpointsdir + out_model + 'history.json') as fh:
+            print("Saved history to", checkpointsdir + out_model + 'history')
+            print(history.history)
+            json.dump(history.history, fh)
+
+    # Captions for the given categories
+    alliter = mycoco.iter_captions_cats(categories, maxinstances=maxinstances)
+    allcaptions = list(alliter)
+
+    # Re-train on just the given categories
+    X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size)
+    print("Created {} training examples for categories {} with window_size {}".format(X.shape[0], ",".join(categories), window_size))
+
+    cat_joined = "_".join(categories)
+    csv_logger = CSVLogger(logfile, append=True, separator=';')
+    filepath= checkpointdir + "lstm_simple" + cat_joined + "epoch{epoch:02d}.hdf5"
+    checkpoint = ModelCheckpoint(filepath, verbose=1)
+
+    history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[checkpoint, csv_logger], epochs=epochs)
+    with open(checkpointsdir + out_model +  categories + '_history.json') as fh:
+        print("Saved history to", checkpointsdir + out_model + 'history')
         print(history.history)
+        json.dump(history.history, fh)
+    model.save(out_model)
 
 # Modify this as needed.
 if __name__ == "__main__":
