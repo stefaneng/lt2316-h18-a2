@@ -117,11 +117,18 @@ def iter_captions_cats(cats=None, maxinstances=None):
     if maxinstances:
         # Only take the first `maxinstances` for each query category
         query_res = [res[:maxinstances] for res in query_res]
-
-    # Join the results from the query into one set
-    imageids = set(itertools.chain(* query_res))
-
-    annids =  capcoco.getAnnIds(imgIds=imageids)
+   
+    if maxinstances:
+        # Get the annotation ids for each of the queried categories
+        # Only take `maxinstances`
+        annids = [random.sample(capcoco.getAnnIds(imgIds=imageids), k=maxinstances) for imageids in query_res]
+        # Remove the duplicates and turn back into a list
+        annids = list(set(itertools.chain(* annids)))
+    else:
+        # Remove duplicates first since we don't need to keep track of how many instances we have
+        imageids = set(itertools.chain(* query_res))
+        annids = capcoco.getAnnIds(imgIds=imageids)
+    
     anns = capcoco.loadAnns(annids)
     random_anns = random.sample(anns, k=len(anns))
     for a in random_anns:

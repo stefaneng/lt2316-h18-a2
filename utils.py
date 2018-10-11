@@ -3,7 +3,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import numpy as np
 
-def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10):
+def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, ):
     """
     `img_captions` is a list of caption data from COCOAPI, with format:
         {
