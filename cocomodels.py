@@ -1,5 +1,5 @@
 from keras.models import Model
-from keras.layers import Dense, LSTM, Embedding, Input
+from keras.layers import Dense, LSTM, Embedding, Input, Dropout
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 
@@ -39,12 +39,12 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     ## Model 1
     inputs = Input(shape=(input_length,))
     embed = Embedding(vocab_size, 50, input_length=input_length)(inputs)
-    spatialdropout = SpatialDropout1D(dropout)(inputs)
+    dropout_layer = Dropout(dropout)(embed)
     # Two levels of LSTM, each with dropout
-    lstm1 = LSTM(50, return_sequences=True, dropout=dropout)(spatialdropout)
-    lstm2 = LSTM(50, dropout=dropout)(lstm1)
+    lstm1 = LSTM(25, dropout=dropout)(dropout_layer)
+    lstm2 = LSTM(25, dropout=dropout)(dropout_layer)
     # Word prediction softmax
-    word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm2)
+    word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm1)
     # 90 categories, sigmoid activation
     category_preds = Dense(90, activation = 'sigmoid', name='category_prediction')(lstm2)
 
