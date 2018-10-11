@@ -84,6 +84,8 @@ def query(queries, exclusive=True):
 def iter_captions_cats(cats=None, maxinstances=None):
     '''
     `cats` is a 1d array of categories. If `cats` is None, then we get all image captions
+    `maxinstances` will give at least this many instances for each image. There may be more from the intersections of
+                   other categories.                    
     Iterates over captions with includes the other captions associated with the image (excluding the ones given in cats)
     '''
     # Create an image id: category dictionary that we save between runs
@@ -109,14 +111,16 @@ def iter_captions_cats(cats=None, maxinstances=None):
             pickle.dump(image_cat, f)
 
     if not cats:
-        # Get all images with this query
         cats = ['']
+        if maxinstances:            
+            # Query over each category.
+            # Extracting each category separately will allow us to only take `maxinstance` number
+            cat_objs = annotcoco.loadCats(annotcoco.getCatIds())
+            # All 90 categories will be passed to 
+            cats=[cat['name'] for cat in cat_objs]            
 
     # Query non-exclusive so we get images from intersection as well
     query_res = query(cats, exclusive=False)
-    if maxinstances:
-        # Only take the first `maxinstances` for each query category
-        query_res = [res[:maxinstances] for res in query_res]
    
     if maxinstances:
         # Get the annotation ids for each of the queried categories
