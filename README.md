@@ -5,7 +5,7 @@ of Language Technology programme.
 
 ## Word Prediction
 ```
-python predict_word.py --windowsize=10 "A man standing on top of a" ./models/lstm_complex_embed100_drop1.hdf5 tokenizer10000.pickle
+python predict_word.py --windowsize=10 "A man standing on top of a" /scratch/gussteen/lstm_simple.12.hdf5 tokenizer10000.pickle --npredictions=3
 ```
 
 ## Testing
@@ -29,4 +29,3 @@ python train.py -P B --init_model=init_model.hdf5 /scratch/gussteen/ test_model.
   - Describe in 1-2 paragraphs what you learned.
   - To develop your "scientific common sense": Answer the question: why is it bad to validate/test on the training data?
   - Include all the four saved model files in the repo in a manner that can be loaded by the testing script. If they are too large for github, we will come up with an alternative solution to provide them to us -- contact Vlad if so, before the submission deadline.
-
