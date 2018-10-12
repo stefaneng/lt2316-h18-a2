@@ -20,5 +20,3 @@ python train.py -P B --init_model=init_model.hdf5 /scratch/gussteen/ test_model.
   - To develop your "scientific common sense": Answer the question: why is it bad to validate/test on the training data?
   - Include all the four saved model files in the repo in a manner that can be loaded by the testing script. If they are too large for github, we will come up with an alternative solution to provide them to us -- contact Vlad if so, before the submission deadline.
 
-## Notes
-  - It worked better to use a smaller number of words used to predict. (This was on second thought because there are less total words to predict...)

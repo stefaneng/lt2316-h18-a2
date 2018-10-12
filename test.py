@@ -5,6 +5,7 @@
 
 # Add/update whatever imports you need.
 import pickle
+import json
 from argparse import ArgumentParser
 from keras.models import load_model
 
@@ -22,6 +23,8 @@ def optA():
 def optB(modelfile, traintokenizer, maxinstances):
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
+    with open('./categories_idindex.json') as f:
+        cat_dict = json.load(f)
     window_size = 5
     vocab_size = tokenizer.num_words
     mycoco.setmode('test')
