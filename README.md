@@ -3,6 +3,16 @@
 Git project for implementing assignment 2 in [Asad Sayeed's](https://asayeed.github.io) machine learning class in the University of Gothenburg's Masters
 of Language Technology programme.
 
+## Word Prediction
+```
+python predict_word.py --windowsize=10 "A man standing on top of a" ./models/lstm_complex_embed100_drop1.hdf5 tokenizer10000.pickle
+```
+
+## Testing
+```
+python test.py -P B ./models/lstm_complex_embed100_drop1.hdf5 tokenizer10000.pickle --maxinstances=50
+```
+
 ## Training
 Example
 ```
