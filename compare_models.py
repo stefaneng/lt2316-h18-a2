@@ -11,8 +11,10 @@ vocab_size = 10000
 epochs = 5
 batch_size = 256
 
+maxinstances = 500
+
 # Get all the captions and categories
-alliter = mycoco.iter_captions_cats()
+alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
 allcaptions = list(alliter)
 
 checkpointdir = "/scratch/gussteen/"
@@ -24,7 +26,9 @@ with open('./categories_idindex.json') as f:
 X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, cat_dict, num_words=vocab_size, seq_maxlen=window_size)
 
 # Save the tokenizer to use for testing
-with open('./tokenizer{}.pickle'.format(vocab_size), 'wb') as f:
+
+maxinstance_str = str(maxinstances) if maxinstances else ""
+with open('./tokenizer{}{}.pickle'.format(vocab_size, maxinstance_str), 'wb') as f:
     pickle.dump(tokenizer, f)
 
 print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
