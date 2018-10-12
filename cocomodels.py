@@ -3,9 +3,9 @@ from keras.layers import Dense, LSTM, Embedding, Input, Dropout
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.callbacks import CSVLogger
 
-earlystopping = EarlyStopping(monitor='val_loss', patience=2)
+earlystopping = EarlyStopping(monitor='loss', patience=2)
 
-def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, embed_size = 50, logfile = 'model_log.csv'):
+def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, embed_size = 50, logfile = 'model_log.csv', load_from=None):
     "y = [y_words, y_categories]"
     input_length = X.shape[1]
     cats_length = y_categories.shape[1]
@@ -26,6 +26,10 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     model.compile(optimizer='adam',
                     loss='categorical_crossentropy',
                     metrics=['accuracy'])
+    
+    if load_from:
+        print("Loading weights from:", load_from)
+        model.load_weights(load_from)
 
     # Checkpointing and logging
     csv_logger = CSVLogger(logfile, append=True, separator=',')

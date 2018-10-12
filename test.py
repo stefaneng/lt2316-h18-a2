@@ -25,25 +25,23 @@ def optB(modelfile, traintokenizer, maxinstances):
         tokenizer = pickle.load(f)
     with open('./categories_idindex.json') as f:
         cat_dict = json.load(f)
-    window_size = 5
+    window_size = 10
     vocab_size = tokenizer.num_words
     mycoco.setmode('test')
     
     model = load_model(modelfile)
     
     alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
-    allcaptions = list(alliter)
+    allcaptions = list(alliter)       
     
-    print(model.summary())
-    model.compile(optimizer='adam',
-                loss='categorical_crossentropy',
-                metrics=['accuracy'])
+    model.summary()
     
     print("Found:", len(list(allcaptions)), "captions in test set")
     
-    X, y_words, y_categories, tokenizer2 = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size, tokenizer=tokenizer)
     
-    print("Created {} test examples".format(X.shape[0]))
+    X, y_words, y_categories, tokenizer2 = utils.seq_to_examples(allcaptions, cat_dict, num_words=vocab_size, seq_maxlen=window_size, tokenizer=tokenizer)
+    
+    print("Created {} test examples with window size {}".format(X.shape[0], window_size))   
     
     score = model.evaluate(X, [y_words, y_categories])
     # Not sure why category_prediction_loss is 0?

@@ -34,7 +34,7 @@ with open('./tokenizer{}{}.pickle'.format(vocab_size, maxinstance_str), 'wb') as
     pickle.dump(tokenizer, f)
 
 print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
-model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs = epochs, embed_size = embed_size, logfile="./results/compare_simple.csv")
+model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs = epochs, embed_size = embed_size, logfile="./results/compare_simple.csv", load_from="/scratch/gussteen/lstm_simple.01.hdf5")
 
 print(history.history)
 model.save('/scratch/gussteen/lstm_simple.hdf5')

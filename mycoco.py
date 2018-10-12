@@ -92,24 +92,15 @@ def iter_captions_cats(cats=None, maxinstances=None):
     # to save time
     image_cat = {}
 
-    # TODO: Can't do this because then testing data will not get the correct categories
-    if os.path.isfile("image_categories.pickle"):
-        with open('image_categories.pickle', 'rb') as f:
-            image_cat = pickle.load(f)
-    else:
-        print("Creating new image_categories object")
-        # Create a dictionary with categories for each image
-        for a in anno_json['annotations']:
-            img_id = a['image_id']
-            cat_id = a['category_id']
-            if img_id not in image_cat:
-                image_cat[img_id] = set()
-            if cat_id not in image_cat[img_id]:
-                image_cat[img_id].add(cat_id)
-
-        # Write to file
-        with open('image_categories.pickle', 'wb+') as f:
-            pickle.dump(image_cat, f)
+    # Create a dictionary with categories for each image
+    # Use the json directly
+    for a in anno_json['annotations']:
+        img_id = a['image_id']
+        cat_id = a['category_id']
+        if img_id not in image_cat:
+            image_cat[img_id] = set()
+        if cat_id not in image_cat[img_id]:
+            image_cat[img_id].add(cat_id)
 
     if not cats:
         cats = ['']
