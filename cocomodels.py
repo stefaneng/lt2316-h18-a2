@@ -26,7 +26,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
                     metrics=['accuracy'])
 
     # Checkpointing and logging
-    csv_logger = CSVLogger(logfile, append=True, separator=';')
+    csv_logger = CSVLogger(logfile, append=True, separator=',')
     filepath= checkpointdir + "lstm_simple.{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
     
@@ -62,7 +62,7 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
         model.load_weights(load_from)
 
     # Checkpointing and logging
-    csv_logger = CSVLogger(logfile, append=True, separator=';')
+    csv_logger = CSVLogger(logfile, append=True, separator=',')
     filename = "lstmdouble_dropout{}_window{}".format(dropout, input_length)
     filepath= checkpointdir + filename + ".{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
