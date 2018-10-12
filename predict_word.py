@@ -22,7 +22,7 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def predict(predict_sent, modelfile, traintokenizer, window_size):
+def predict(predict_sent, modelfile, traintokenizer, window_size, npredictions):
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
         
@@ -38,19 +38,21 @@ def predict(predict_sent, modelfile, traintokenizer, window_size):
                 metrics=['accuracy'])
     
     encoded = tokenizer.texts_to_sequences([predict_sent])
-    # First remove all words so we have at most `window_size`
-    # Then pad the remaining last as 0
-    x = pad_sequences(encoded, padding='post', truncating='pre', maxlen=window_size)
     
-    word_preds, cat_preds = model.predict(np.array(x))
+    # Flip the word index around so we can look up word names based on the index
+    word_lookup = {v: k for k, v in tokenizer.word_index.items()}
+    
+    x = pad_sequences(encoded, padding='post', truncating='pre', maxlen=window_size)
+
+    
+    word_preds, cat_preds = model.predict(np.array(x))    
     # Add 1 to get actual category since we subtracted one in one-hot encoding
     words_preds = word_preds[0]
     cat_preds = cat_preds[0]
     
     # Word predictions
-    # Flip the word index around so we can look up word names based on the index
-    word_lookup = {v: k for k, v in tokenizer.word_index.items()}
-    sort_word_preds = np.argsort(word_preds, axis=None)
+    # Descending order
+    sort_word_preds = np.argsort(word_preds, axis=None)[::-1]
     sort_word_names = [word_lookup[i + 1] for i in sort_word_preds]
     sort_word_probs = words_preds[sort_word_preds]
    
@@ -64,7 +66,7 @@ def predict(predict_sent, modelfile, traintokenizer, window_size):
     # Create a mapping with key=index and value=name so we can easily get back the category names
     cats_id_name = {int(k['index']): k['name'] for k in cat_dict.values()}
     # Get the ordered indices
-    sort_cat_preds = np.argsort(cat_preds, axis=None)
+    sort_cat_preds = np.argsort(cat_preds, axis=None)[::-1]
     # Get the names of the top 
     sort_cat_names = [cats_id_name[s] for s in sort_cat_preds]
     # Get top 5 predictions with probabilities
@@ -84,6 +86,7 @@ if __name__ == "__main__":
     parser.add_argument('modelfile', type=str, help="model file to evaluate")
     parser.add_argument('tokenizer', type=str, help="Saved tokenizer file from training run. (REQUIRED)")
     parser.add_argument('--windowsize', type=int, help="Size of window. Must be the size given in `modelfile` (REQUIRED)")
+    parser.add_argument('--npredictions', type=int, help="Number of predictions to make (Default 1)", nargs='?', const=1)
     args = parser.parse_args()
 
-    predict(args.sentence, args.modelfile, args.tokenizer, args.windowsize)
+    predict(args.sentence, args.modelfile, args.tokenizer, args.windowsize, args.npredictions)
