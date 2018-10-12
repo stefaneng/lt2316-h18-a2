@@ -92,6 +92,7 @@ def iter_captions_cats(cats=None, maxinstances=None):
     # to save time
     image_cat = {}
 
+    # TODO: Can't do this because then testing data will not get the correct categories
     if os.path.isfile("image_categories.pickle"):
         with open('image_categories.pickle', 'rb') as f:
             image_cat = pickle.load(f)
@@ -216,3 +217,19 @@ def iter_images(idlists, cats, size=(200,200), batch=1):
                     yield (np.array(images), np.array(labels))
                     images = []
                     labels = []
+
+def get_categories():
+    """
+    Use the test file to get all the category id/name mapping
+    """
+    # Attempt to use annotcoco if defined
+    annococo =  COCO(VAL_ANNOT_FILE)
+    cats = annococo.loadCats(annococo.getCatIds())    
+    id_cat = {}    
+    for i, c in enumerate(cats):
+        # Use the ID given in COCOAPI 
+        id_cat[c['id']] = {
+            'name': c['name'],
+            'index': i
+        }
+    return id_cat

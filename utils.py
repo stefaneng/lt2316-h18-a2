@@ -3,7 +3,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import numpy as np
 
-def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, tokenizer=None):
+def seq_to_examples(img_captions, cat_dict, num_words=10000, seq_maxlen = 10, tokenizer=None):
     """
     `img_captions` is a list of caption data from COCOAPI, with format:
         {
@@ -15,6 +15,10 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, tokenizer=No
     `num_words` is the max words in the vocabulary. Anything outside of vocabulary is removed.
     `seq_maxlen` is the max number of words in the sequence. 
                  Each vector uses at most `seq_maxlen` previous words to predict the last word.
+    `cat_dict`  is a dictionary of categories that maps from COCOAPI ids to name and index
+                {"1": {"name": "person", "index": 0},
+                 "2": ....}
+                 This is used so we can get back the name of the categories correctly
     `tokenizer` is used when we are testing on the testing data. Need to pass in tokenizer from training data.
     
     returns X, y_categories, tokenizer
@@ -45,11 +49,11 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, tokenizer=No
     # The new categories, in one-hot format
     y_categories = []
     for e, c in zip(encoded, categories):
-        # Reindex the categories from 0 to 89 instead of 1 to 90
+        # Reindex the categories from 0 to 79 instead of 1 to 90
         # This is the format to_categorical expects
-        c = np.array(c) - 1
+        new_cats = [cat_dict[str(x)]['index'] for x in c]        
         # Sum each of the one-hot vectors into a joined vector
-        new_cat = to_categorical(c, num_classes=90).sum(axis=0)
+        new_cat = to_categorical(new_cats, num_classes=80).sum(axis=0)
         for i in range(1,len(e)):
             end_index = len(e) - i
             # Force the sequence to fit into seq_maxlen

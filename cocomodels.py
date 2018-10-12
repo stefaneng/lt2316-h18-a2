@@ -6,6 +6,7 @@ from keras.callbacks import CSVLogger
 def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, logfile = 'model_log.csv'):
     "y = [y_words, y_categories]"
     input_length = X.shape[1]
+    cats_length = y_categories.shape[1]
 
     ## Model 1
     inputs = Input(shape=(input_length,))
@@ -14,7 +15,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     # Word prediction softmax
     word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm)
     # 90 categories, sigmoid activation
-    category_preds = Dense(90, activation = 'sigmoid', name='category_prediction')(lstm)
+    category_preds = Dense(cats_length, activation = 'sigmoid', name='category_prediction')(lstm)
 
     # This creates a model that includes
     # the Input layer and two Dense layers outputs
@@ -32,9 +33,10 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[checkpoint, csv_logger], epochs=epochs)
     return model, history
 
-def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, dropout=0.1, logfile = 'model_log.csv'):
+def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, dropout=0.1, logfile = 'model_log.csv', load_from=None):
     "y = [y_words, y_categories]"
     input_length = X.shape[1]
+    cats_length = y_categories.shape[1]
 
     ## Model 1
     inputs = Input(shape=(input_length,))
@@ -45,8 +47,8 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     lstm2 = LSTM(50, dropout=dropout)(lstm1)
     # Word prediction softmax
     word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm2)
-    # 90 categories, sigmoid activation
-    category_preds = Dense(90, activation = 'sigmoid', name='category_prediction')(lstm2)
+    # cats_length categories, sigmoid activation
+    category_preds = Dense(cats_length, activation = 'sigmoid', name='category_prediction')(lstm2)
 
     # This creates a model that includes
     # the Input layer and two Dense layers outputs
@@ -55,6 +57,9 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     model.compile(optimizer='adam',
                     loss='categorical_crossentropy',
                     metrics=['accuracy'])
+    if load_from:
+        print("Loading weights from:", load_from)
+        model.load_weights(load_from)
 
     # Checkpointing and logging
     csv_logger = CSVLogger(logfile, append=True, separator=';')
