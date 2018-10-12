@@ -41,10 +41,10 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     embed = Embedding(vocab_size, 50, input_length=input_length)(inputs)
     dropout_layer = Dropout(dropout)(embed)
     # Two levels of LSTM, each with dropout
-    lstm1 = LSTM(25, dropout=dropout)(dropout_layer)
-    lstm2 = LSTM(25, dropout=dropout)(dropout_layer)
+    lstm1 = LSTM(50, return_sequences=True, dropout=dropout)(dropout_layer)
+    lstm2 = LSTM(50, dropout=dropout)(lstm1)
     # Word prediction softmax
-    word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm1)
+    word_pred = Dense(vocab_size, activation='softmax', name='word_prediction')(lstm2)
     # 90 categories, sigmoid activation
     category_preds = Dense(90, activation = 'sigmoid', name='category_prediction')(lstm2)
 
@@ -58,7 +58,7 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
 
     # Checkpointing and logging
     csv_logger = CSVLogger(logfile, append=True, separator=';')
-    filename = "lstm_complex_dropout{}_window{}".format(dropout, input_length)
+    filename = "lstmdouble_dropout{}_window{}".format(dropout, input_length)
     filepath= checkpointdir + filename + ".{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
     
