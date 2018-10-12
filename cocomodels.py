@@ -1,7 +1,9 @@
 from keras.models import Model
 from keras.layers import Dense, LSTM, Embedding, Input, Dropout
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.callbacks import CSVLogger
+
+earlystopping = EarlyStopping(monitor='val_loss', patience=2)
 
 def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, embed_size = 50, logfile = 'model_log.csv'):
     "y = [y_words, y_categories]"
@@ -30,7 +32,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     filepath= checkpointdir + "lstm_simple.{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
     
-    history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[checkpoint, csv_logger], epochs=epochs)
+    history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[earlystopping, checkpoint, csv_logger], epochs=epochs)
     return model, history
 
 def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, batch_size = 256, epochs = 20, embed_size = 50, dropout=0.1, logfile = 'model_log.csv', load_from=None):
@@ -67,5 +69,5 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     filepath= checkpointdir + filename + ".{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
     
-    history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[checkpoint, csv_logger], epochs=epochs)
+    history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[earlystopping, checkpoint, csv_logger], epochs=epochs)
     return model, history
