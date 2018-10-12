@@ -4,7 +4,11 @@
 # as long as all the training functionality can be reached from this script.
 
 # Add/update whatever imports you need.
+import pickle
 from argparse import ArgumentParser
+from keras.models import load_model
+
+import utils
 import mycoco
 
 # If you do option A, you may want to place your code here.  You can
@@ -15,13 +19,37 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def optB():
+def optB(modelfile, traintokenizer, maxinstances):
+    with open(traintokenizer, 'rb') as f:
+        tokenizer = pickle.load(f)
+    window_size = 5
+    vocab_size = tokenizer.num_words
     mycoco.setmode('test')
-    print("Option B not implemented!")
+    
+    model = load_model(modelfile)
+    
+    alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
+    allcaptions = list(alliter)
+    
+    print(model.summary())
+    model.compile(optimizer='adam',
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
+    
+    print("Found:", len(list(allcaptions)), "captions in test set")
+    
+    X, y_words, y_categories, tokenizer2 = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size, tokenizer=tokenizer)
+    
+    print("Created {} test examples".format(X.shape[0]))
+    
+    score = model.evaluate(X, [y_words, y_categories])
+    # Not sure why category_prediction_loss is 0?
+    for m, s in zip(model.metrics_names, score):
+        print("Metric {}: {}".format(m, s))
 
 # Modify this as needed.
 if __name__ == "__main__":
-    parser = ArgumentParser("Evaluate a model.")    
+    parser = ArgumentParser("Evaluate a model.")        
     # Add your own options as flags HERE as necessary (and some will be necessary!).
     # You shouldn't touch the arguments below.
     parser.add_argument('-P', '--option', type=str,
@@ -31,6 +59,7 @@ if __name__ == "__main__":
                         help="The maximum number of instances to be processed per category. (optional)",
                         required=False)
     parser.add_argument('modelfile', type=str, help="model file to evaluate")
+    parser.add_argument('tokenizer', type=str, help="Saved tokenizer file from training run. (REQUIRED)")
     args = parser.parse_args()
 
     print("Output model in " + args.modelfile)
@@ -40,7 +69,7 @@ if __name__ == "__main__":
     if args.option == 'A':
         optA()
     elif args.option == 'B':
-        optB()
+        optB(args.modelfile, args.tokenizer, args.maxinstances)
     else:
         print("Option does not exist.")
         exit(0)

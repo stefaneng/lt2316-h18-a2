@@ -3,7 +3,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import numpy as np
 
-def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, ):
+def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, tokenizer=None):
     """
     `img_captions` is a list of caption data from COCOAPI, with format:
         {
@@ -15,7 +15,8 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, ):
     `num_words` is the max words in the vocabulary. Anything outside of vocabulary is removed.
     `seq_maxlen` is the max number of words in the sequence. 
                  Each vector uses at most `seq_maxlen` previous words to predict the last word.
-                
+    `tokenizer` is used when we are testing on the testing data. Need to pass in tokenizer from training data.
+    
     returns X, y_categories, tokenizer
     """
     
@@ -26,9 +27,12 @@ def seq_to_examples(img_captions, num_words=10000, seq_maxlen = 10, ):
         categories.append(c['categories'])
     # Currently just remove words outside of the vocabulary
     # Will experiment to see what is best method
-    tokenizer = Tokenizer(num_words=num_words)
-    tokenizer.fit_on_texts(captions)
+    if not tokenizer:
+        tokenizer = Tokenizer(num_words=num_words)
+        tokenizer.fit_on_texts(captions)
     
+    # TODO: Not sure if this works properly on test set
+    # If we drop words we are trying to predict, we are actually performing better than if it was replaced
     encoded = tokenizer.texts_to_sequences(captions)
     
     # The partial sequences from the sentence

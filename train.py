@@ -5,6 +5,8 @@
 
 # Add/update whatever imports you need.
 from argparse import ArgumentParser
+from keras.models import load_model
+
 import mycoco
 import cocomodels
 import utils
@@ -22,7 +24,7 @@ def optB(init_model, categories, out_model, maxinstances, checkpointdir):
     # TODO: Other values to add as parameters
     # Number of previous words to use in prediction
     window_size = 5
-    vocab_size = 100
+    vocab_size = 8000
     epochs = 3
     batch_size = 256
     logfile = checkpointdir + "train_results.csv"
