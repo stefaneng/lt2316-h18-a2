@@ -44,21 +44,21 @@ with open('./results/history_lstm_simple.json', 'w+') as f:
 # Increase word embedding size, use simple model
 embed_size = 100
 # 0.1 dropout with larger window size
-model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs=epochs, embed_size = embed_size, logfile="./results/compare_window10.csv")
+model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs=epochs, embed_size = embed_size, logfile="./results/compare_embed_100.csv")
 print(history.history)
 model.save('/scratch/gussteen/lstm_simple_embed100.hdf5')
-with open('./results/history_lstm_simple_embed100.json', 'w+') as f:
-    json.dump(history.history, f)    
+# with open('./results/history_lstm_simple_embed100.json', 'w+') as f:
+#     json.dump(history.history, f)    
 
 # 0.1 dropout
-model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs = epochs, dropout=0.1, embed_size = embed_size, logfile="./results/compare_dropout1.csv")
+model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs = epochs, dropout=0.1, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do1.csv")
 print(history.history)
 model.save('/scratch/gussteen/lstm_complex_drop1.hdf5')
 with open('./results/history_lstm_complex_drop1.json', 'w+') as f:
     json.dump(history.history, f)
 
 # 0.5 dropout
-model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs=epochs, dropout=0.5, embed_size = embed_size, logfile="./results/compare_dropout5.csv")
+model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs=epochs, dropout=0.5, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do5.csv")
 print(history.history)
 model.save('/scratch/gussteen/lstm_complex_drop5.hdf5')
 with open('./results/history_lstm_complex_drop5.json', 'w+') as f:
