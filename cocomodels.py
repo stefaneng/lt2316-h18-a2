@@ -1,7 +1,6 @@
 from keras.models import Model
 from keras.layers import Dense, LSTM, Embedding, Input, Dropout
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras.callbacks import CSVLogger
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 
 earlystopping = EarlyStopping(monitor='loss', patience=2)
 
