@@ -28,21 +28,21 @@ def optB(modelfile, traintokenizer, maxinstances):
     window_size = 10
     vocab_size = tokenizer.num_words
     mycoco.setmode('test')
-    
+
     model = load_model(modelfile)
-    
+
     alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
     allcaptions = list(alliter)       
-    
+
     model.summary()
-    
+
     print("Found:", len(list(allcaptions)), "captions in test set")
-    
-    
+
+
     X, y_words, y_categories, tokenizer2 = utils.seq_to_examples(allcaptions, cat_dict, num_words=vocab_size, seq_maxlen=window_size, tokenizer=tokenizer)
-    
-    print("Created {} test examples with window size {}".format(X.shape[0], window_size))   
-    
+
+    print("Created {} test examples with window size {}".format(X.shape[0], window_size))
+
     score = model.evaluate(X, [y_words, y_categories])
     # Not sure why category_prediction_loss is 0?
     for m, s in zip(model.metrics_names, score):
@@ -50,7 +50,7 @@ def optB(modelfile, traintokenizer, maxinstances):
 
 # Modify this as needed.
 if __name__ == "__main__":
-    parser = ArgumentParser("Evaluate a model.")        
+    parser = ArgumentParser("Evaluate a model.")
     # Add your own options as flags HERE as necessary (and some will be necessary!).
     # You shouldn't touch the arguments below.
     parser.add_argument('-P', '--option', type=str,

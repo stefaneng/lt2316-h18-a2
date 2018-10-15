@@ -26,7 +26,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     model.compile(optimizer='adam',
                     loss='categorical_crossentropy',
                     metrics=['accuracy'])
-    
+
     if load_from:
         print("Loading weights from:", load_from)
         model.load_weights(load_from)
@@ -35,7 +35,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     csv_logger = CSVLogger(logfile, append=True, separator=',')
     filepath= checkpointdir + "lstm_simple.{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
-    
+
     history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[earlystopping, checkpoint, csv_logger], epochs=epochs)
     return model, history
 
@@ -72,6 +72,6 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     filename = "lstmdouble_dropout{}_window{}".format(dropout, input_length)
     filepath= checkpointdir + filename + ".{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
-    
+
     history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[earlystopping, checkpoint, csv_logger], epochs=epochs)
     return model, history

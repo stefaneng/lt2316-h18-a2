@@ -20,10 +20,9 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def optB(init_model, categories, out_model, maxinstances, checkpointdir):
+def optB(init_model, categories, out_model, maxinstances, window_size, checkpointdir):
     # TODO: Other values to add as parameters
     # Number of previous words to use in prediction
-    window_size = 5
     vocab_size = 8000
     epochs = 3
     batch_size = 256
@@ -40,8 +39,11 @@ def optB(init_model, categories, out_model, maxinstances, checkpointdir):
         alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
         allcaptions = list(alliter)
 
+        with open('./categories_idindex.json') as f:
+            cat_dict = json.load(f)
+
         # Create the training data
-        X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size)
+        X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, cat_dict, num_words=vocab_size, seq_maxlen=window_size)
         print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
         model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir,
                             vocab_size=vocab_size, batch_size = batch_size, epochs = epochs, logfile = logfile)
@@ -55,7 +57,7 @@ def optB(init_model, categories, out_model, maxinstances, checkpointdir):
     allcaptions = list(alliter)
 
     # Re-train on just the given categories
-    X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, num_words=vocab_size, seq_maxlen=window_size)
+    X, y_words, y_categories, tokenizer = utils.seq_to_examples(allcaptions, cat_dict, num_words=vocab_size, seq_maxlen=window_size)
     print("Created {} training examples for categories {} with window_size {}".format(X.shape[0], ",".join(categories), window_size))
 
     cat_joined = "_".join(categories)
@@ -82,6 +84,9 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--maxinstances', type=int,
                         help="The maximum number of instances to be processed per category. (optional)",
                         required=False)
+    parser.add_argument('--window_size', type=int,
+                        help="The window size (optional)",
+                        required=False, const=5)
     parser.add_argument('checkpointdir', type=str,
                         help="directory for storing checkpointed models and other metadata (recommended to create a directory under /scratch/)")
     parser.add_argument('modelfile', type=str, help="output model file")
@@ -105,7 +110,7 @@ if __name__ == "__main__":
     if args.option == 'A':
         optA()
     elif args.option == 'B':
-        optB(args.init_model, args.categories, args.modelfile, args.maxinstances, args.checkpointdir)
+        optB(args.init_model, args.categories, args.modelfile, args.maxinstances, args.window_size, args.checkpointdir)
     else:
         print("Option does not exist.")
         exit(0)
