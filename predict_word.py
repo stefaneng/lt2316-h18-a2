@@ -23,13 +23,16 @@ def optA():
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
 def predict(predict_sent, modelfile, traintokenizer, npredictions):
+    predicted_number = 5
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
         
     with open('./categories_idindex.json') as f:
         cat_dict = json.load(f)
 
-    vocab_size = tokenizer.num_words    
+    vocab_size = tokenizer.num_words
+    # Flip the word index around so we can look up word names based on the index
+    word_lookup = {v: k for k, v in tokenizer.word_index.items()} 
     
     model = load_model(modelfile)
     model.summary()
@@ -38,9 +41,7 @@ def predict(predict_sent, modelfile, traintokenizer, npredictions):
     window_size = model.layers[0].get_input_at(0).get_shape().as_list()[1]
     print("Window size =", window_size)
     
-    encoded = tokenizer.texts_to_sequences([predict_sent])
-    # Flip the word index around so we can look up word names based on the index
-    word_lookup = {v: k for k, v in tokenizer.word_index.items()}
+    encoded = tokenizer.texts_to_sequences([predict_sent])    
 
     predicted_words = []
     for i in range(npredictions):
@@ -62,13 +63,13 @@ def predict(predict_sent, modelfile, traintokenizer, npredictions):
     if npredictions == 1:
         # Word predictions
         # Descending order
-        sort_word_preds = np.argsort(word_preds, axis=None)[::-1]
+        sort_word_preds = np.argsort(word_preds, axis=None)[::-1][:predicted_number]
         sort_word_names = [word_lookup[i + 1] for i in sort_word_preds]
         sort_word_probs = words_preds[sort_word_preds]
 
         print("Predicting: {}...".format(predict_sent))
         print("Word Predictions:")
-        for w, prob in list(zip(sort_word_names, sort_word_probs))[:5]:
+        for w, prob in list(zip(sort_word_names, sort_word_probs)):
             print("{}: {}".format(w, prob))
     
         print("---------")
