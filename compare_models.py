@@ -60,6 +60,6 @@ with open('./results/history_lstm_complex_drop1_2.json', 'w+') as f:
 # 0.5 dropout
 model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs=epochs, dropout=0.5, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do5_2.csv")
 print(history.history)
-model.save('./moels/lstm_complex_drop5_2.hdf5')
+model.save('./models/lstm_complex_drop5_2.hdf5')
 with open('./results/history_lstm_complex_drop5_2.json', 'w+') as f:
     json.dump(history.history, f)
