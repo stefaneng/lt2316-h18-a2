@@ -85,7 +85,7 @@ I had originally started with a window size of 5 and then tested a window size o
 ### Variant
 ![Two LSTM Layers](./imgs/lstm_complex_drop1.jpg)
 
-This architectural variant did not seem to perform as well at the simple one layer LSTM model. I experimented with setting the dropout rate which increased the loss. This might not have been fair to do, since I did not run it for many epochs. Increasing the dropout rate should make the model converge slower but overfit less often which I didn't give it the chance to do with such a small number of epochs.
+This architectural variant did not seem to perform as well at the simple one layer LSTM model. I experimented with setting the dropout rate which increased the loss. This might not have been fair to do, since I did not run it for many epochs. Increasing the dropout rate should make the model converge slower but overfit less often which I didn't give it the chance to do with such a small number of epochs. This is because each epoch still took a fair amount of time (~10 - 20 minutes) and I was experimenting with many different hyperparameters.
 
 Code below
 ```python
@@ -99,12 +99,12 @@ plot_model(model, to_file="./imgs/lstm_complex_drop1.jpg", show_shapes=True)
 
 ### Hyperparameter Selection  
 
-  After experiementing with many different architectures and LSTM layers, what ended up working the best was a single LSTM layer with 50 nodes. I first changed the embedding size to 100 and then for the two other variations a more complex model (seen above) with additional dropout at levels 0.1 and 0.5. I thought that adding another LSTM layer would perform better than the single layer. I am not sure if increasing the epochs or modifying the other hyperparameters would have made a difference.
+  After experiementing with many different architectures and LSTM layers, what ended up working the best was a single LSTM layer with 50 nodes. I first changed the embedding size to 100 and then for the two other variations a more complex model (seen above) with additional dropout at levels 0.1 and 0.5. I thought that adding another LSTM layer would perform better than the single layer. It is possible that increasing the epochs or modifying the other hyperparameters would have made a difference. Also batch size was set to 256 as it allowed me to actually train my models in a reasonable amount of time. With a large number of examples, 256 seemed to be a good fit. The window size was experimented with a lot. I started with 5, and then went to 10. The loss decreased as I went to 10 but the training time went up substantially. When I actually tested the results on the predict word script it seemed to be more realistic with a window of size 3. It also allowed me to test out more hyperparameters in the time-alloted for this assignment.
 
 ### Model Loss for Different Hyperparameters
 ![Model Loss](./imgs/model_loss.png)
 
-The final model I went with was the *Simple LSTM 100 Embed*. This was an increase from the base model from 50 node embedding layer to 100. The more complex models (with an additional LSTM layer and dropout) did not perform as well overall.
+The final model I went with was the [*Simple LSTM 100 Embed*](models/lstm_simple_embed100.hdf5). This was an increase from the base model from 50 node embedding layer to 100. The more complex models (with an additional LSTM layer and dropout) did not perform as well overall.
 
 Code to generate the plot is show below
 
