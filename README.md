@@ -1,87 +1,19 @@
-
-- A diagram one of your architectures (probably, your best).
-
-- A description of its architecture, design decisions, hyper-parameters (loss function, batch size, epochs, data size, etc).  You should also include a very brief summary of what you tried as a paragraph about the "big picture."
-
-- Describe two more variants you tried:
-  - One architectural variant (i.e., that changes the network graph).
-  - Choose a hyperparameter for your "main" variant and pick two other variants of it (e.g. dropout, batch size, etc).  Describe why you picked that variation and what you expected.
-  - Plot the losses (whichever loss function you're using) for your "main" architecture, the architectural variant, and the two hyperparameter variants, so four loss graphs.
-
-- Describe in 1-2 paragraphs what you learned.
-
-- To develop your "scientific common sense": Answer the question: why is it bad to validate/test on the training data?
-
-- Include all the four saved model files in the repo in a manner that can be loaded by the testing script.
-
-- If they are too large for github, we will come up with an alternative solution to provide them to us -- contact Vlad if so, before the submission deadline.
-
-## Pre-Report
-
-First we need to check out which of the models performed the best.
-
-
-```python
-import matplotlib.pyplot as plt
-
-import pandas as pd
-
-model_simple = pd.read_csv('./results/compare_simple.csv').head(10)
-model_simple_embed100 = pd.read_csv('./results/compare_embed_100.csv').head(10)
-model_complex_drop1 = pd.read_csv('./results/compare_complex_embed_100_do1.csv').head(10)
-model_complex_drop5 = pd.read_csv('./results/compare_complex_embed_100_do5.csv').head(10)
-
-# Plot overall loss
-plt.plot(model_simple['epoch'], model_simple['loss'], label='Simple LSTM 50 Embed')
-plt.plot(model_simple_embed100['epoch'], model_simple_embed100['loss'], label='Simple LSTM 100 Embed')
-plt.plot(model_complex_drop1['epoch'], model_complex_drop1['loss'], label='Complex LSTM 100 Embed Dropout 0.1')
-plt.plot(model_complex_drop5['epoch'], model_complex_drop5['loss'], label='Complex LSTM 100 Embed Dropout 0.5')
-
-plt.legend(loc='upper right')
-plt.title("Overall Categorical Cross Entropy Loss")
-
-plt.savefig('./imgs/model_loss.png', bbox_inches='tight')
-```
-
-
-```python
-# Plot word prediction loss
-plt.plot(model_simple['epoch'], model_simple['word_prediction_loss'], label='Simple LSTM 50 Embed')
-plt.plot(model_simple_embed100['epoch'], model_simple_embed100['word_prediction_loss'], label='Simple LSTM 100 Embed')
-plt.plot(model_complex_drop1['epoch'], model_complex_drop1['word_prediction_loss'], label='Complex LSTM 100 Embed Dropout 0.1')
-plt.plot(model_complex_drop5['epoch'], model_complex_drop5['word_prediction_loss'], label='Complex LSTM 100 Embed Dropout 0.5')
-
-plt.legend(loc='upper right')
-plt.title("Word Prediction Categorical Cross Entropy Loss")
-```
-
-
-
-
-    <matplotlib.text.Text at 0x119dd9a90>
-
-
-
-
-```python
-# Plot word prediction loss
-plt.plot(model_simple['epoch'], model_simple['category_prediction_loss'], label='Simple LSTM 50 Embed')
-plt.plot(model_simple_embed100['epoch'], model_simple_embed100['category_prediction_loss'], label='Simple LSTM 100 Embed')
-plt.plot(model_complex_drop1['epoch'], model_complex_drop1['category_prediction_loss'], label='Complex LSTM 100 Embed Dropout 0.1')
-plt.plot(model_complex_drop5['epoch'], model_complex_drop5['category_prediction_loss'], label='Complex LSTM 100 Embed Dropout 0.5')
-
-plt.legend(loc='upper right')
-plt.title("Category Prediction Categorical Cross Entropy Loss")
-```
-
-
-
-
-    <matplotlib.text.Text at 0x119dd9a90>
-
-
-
 # LT2316 H18 Assignment 2
+
+## Usage 
+
+### `test.py`
+```
+# Example
+python test.py -P B --windowsize=3 --maxinstances=10 ./models/lstm_simple.hdf5 tokenizer10000.pickle
+```
+
+### `perplexity.py`
+```
+# Example
+python perplexity.py --windowsize=3 --maxinstances=10 ./models/lstm_simple.hdf5 tokenizer10000.pickle
+```
+
 
 ###  Model Diagram
 

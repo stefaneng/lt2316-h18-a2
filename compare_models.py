@@ -37,7 +37,7 @@ print("Created {} training examples with window_size {}".format(X.shape[0], wind
 model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs = epochs, embed_size = embed_size, logfile="./results/compare_simple_2.csv")
 
 print(history.history)
-model.save('/scratch/gussteen/lstm_simple.hdf5')
+model.save('./models/lstm_simple.hdf5')
 with open('./results/history_lstm_simple.json', 'w+') as f:
     json.dump(history.history, f)
     

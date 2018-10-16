@@ -87,7 +87,7 @@ if __name__ == "__main__":
                         required=False)
     parser.add_argument('--windowsize', type=int,
                         help="The window size (optional)",
-                        nargs='?', const=5, default=5)
+                        nargs='?', const=3, default=3)
     parser.add_argument('checkpointdir', type=str,
                         help="directory for storing checkpointed models and other metadata (recommended to create a directory under /scratch/)")
     parser.add_argument('modelfile', type=str, help="output model file")
