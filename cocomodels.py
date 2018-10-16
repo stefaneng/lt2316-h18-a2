@@ -27,10 +27,9 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
                     loss={
                         'word_prediction': 'categorical_crossentropy',
                         'category_prediction': 'binary_crossentropy'
-                    }
-                    metrics=[
-                        categorical_accuracy
-                    #,'accuracy'
+                    },
+                    metrics=[categorical_accuracy,
+                    'accuracy'
                     ])
 
     if load_from:
@@ -67,8 +66,14 @@ def lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = 10000, ba
     model = Model(inputs=inputs, outputs=[word_pred, category_preds])
 
     model.compile(optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy'])
+                    loss={
+                        'word_prediction': 'categorical_crossentropy',
+                        'category_prediction': 'binary_crossentropy'
+                    },
+                    metrics=[categorical_accuracy,
+                    'accuracy'
+                    ])
+
     if load_from:
         print("Loading weights from:", load_from)
         model.load_weights(load_from)

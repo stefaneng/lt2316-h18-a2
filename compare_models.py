@@ -6,9 +6,9 @@ import json
 
 mycoco.setmode('train')
 
-window_size = 10
+window_size = 3
 vocab_size = 10000
-epochs = 20
+epochs = 10
 batch_size = 256
 embed_size = 50
 
@@ -34,7 +34,7 @@ with open('./tokenizer{}{}.pickle'.format(vocab_size, maxinstance_str), 'wb') as
     pickle.dump(tokenizer, f)
 
 print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
-model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs = epochs, embed_size = embed_size, logfile="./results/compare_simple.csv", load_from="/scratch/gussteen/lstm_simple.01.hdf5")
+model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs = epochs, embed_size = embed_size, logfile="./results/compare_simple_2.csv")
 
 print(history.history)
 model.save('/scratch/gussteen/lstm_simple.hdf5')
@@ -44,22 +44,22 @@ with open('./results/history_lstm_simple.json', 'w+') as f:
 # Increase word embedding size, use simple model
 embed_size = 100
 # 0.1 dropout with larger window size
-model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs=epochs, embed_size = embed_size, logfile="./results/compare_embed_100.csv")
+model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size=vocab_size, batch_size=batch_size, epochs=epochs, embed_size = embed_size, logfile="./results/compare_embed_100_2.csv")
 print(history.history)
-model.save('/scratch/gussteen/lstm_simple_embed100.hdf5')
-# with open('./results/history_lstm_simple_embed100.json', 'w+') as f:
-#     json.dump(history.history, f)    
+model.save('./models/lstm_simple_embed100_2.hdf5')
+with open('./results/history_lstm_simple_embed100_2.json', 'w+') as f:
+    json.dump(history.history, f)    
 
 # 0.1 dropout
-model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs = epochs, dropout=0.1, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do1.csv")
+model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs = epochs, dropout=0.1, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do1_2.csv")
 print(history.history)
-model.save('/scratch/gussteen/lstm_complex_drop1.hdf5')
-with open('./results/history_lstm_complex_drop1.json', 'w+') as f:
+model.save('./models/lstm_complex_drop1_2.hdf5')
+with open('./results/history_lstm_complex_drop1_2.json', 'w+') as f:
     json.dump(history.history, f)
 
 # 0.5 dropout
-model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs=epochs, dropout=0.5, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do5.csv")
+model, history = cocomodels.lstm_complex(X, y_words, y_categories, checkpointdir, vocab_size = vocab_size, batch_size=batch_size, epochs=epochs, dropout=0.5, embed_size = embed_size, logfile="./results/compare_complex_embed_100_do5_2.csv")
 print(history.history)
-model.save('/scratch/gussteen/lstm_complex_drop5.hdf5')
-with open('./results/history_lstm_complex_drop5.json', 'w+') as f:
+model.save('./moels/lstm_complex_drop5_2.hdf5')
+with open('./results/history_lstm_complex_drop5_2.json', 'w+') as f:
     json.dump(history.history, f)

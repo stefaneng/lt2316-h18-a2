@@ -6,6 +6,7 @@
 # Add/update whatever imports you need.
 from argparse import ArgumentParser
 from keras.models import load_model
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 
 import mycoco
 import cocomodels
@@ -47,8 +48,8 @@ def optB(init_model, categories, out_model, maxinstances, window_size, checkpoin
         print("Created {} training examples with window_size {}".format(X.shape[0], window_size))
         model, history = cocomodels.lstm_simple(X, y_words, y_categories, checkpointdir,
                             vocab_size=vocab_size, batch_size = batch_size, epochs = epochs, logfile = logfile)
-        with open(checkpointsdir + out_model + 'history.json') as fh:
-            print("Saved history to", checkpointsdir + out_model + 'history')
+        with open(checkpointdir + out_model + 'history.json', 'w+') as fh:
+            print("Saved history to", checkpointdir + out_model + 'history')
             print(history.history)
             json.dump(history.history, fh)
 
@@ -66,8 +67,8 @@ def optB(init_model, categories, out_model, maxinstances, window_size, checkpoin
     checkpoint = ModelCheckpoint(filepath, verbose=1)
 
     history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[checkpoint, csv_logger], epochs=epochs)
-    with open(checkpointsdir + out_model +  categories + '_history.json') as fh:
-        print("Saved history to", checkpointsdir + out_model + 'history')
+    with open(checkpointdir + out_model + cat_joined + '_history.json', 'w+') as fh:
+        print("Saved history to", checkpointdir + out_model + 'history')
         print(history.history)
         json.dump(history.history, fh)
     model.save(out_model)
@@ -84,9 +85,9 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--maxinstances', type=int,
                         help="The maximum number of instances to be processed per category. (optional)",
                         required=False)
-    parser.add_argument('--window_size', type=int,
+    parser.add_argument('--windowsize', type=int,
                         help="The window size (optional)",
-                        required=False, const=5)
+                        nargs='?', const=5, default=5)
     parser.add_argument('checkpointdir', type=str,
                         help="directory for storing checkpointed models and other metadata (recommended to create a directory under /scratch/)")
     parser.add_argument('modelfile', type=str, help="output model file")
@@ -97,6 +98,7 @@ if __name__ == "__main__":
     print("Output model in " + args.modelfile)
     print("Working directory at " + args.checkpointdir)
     print("Maximum instances is " + str(args.maxinstances))
+    print("Window size is " + str(args.windowsize))
 
     if len(args.categories) < 2:
         print("Too few categories (<2).")
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     if args.option == 'A':
         optA()
     elif args.option == 'B':
-        optB(args.init_model, args.categories, args.modelfile, args.maxinstances, args.window_size, args.checkpointdir)
+        optB(args.init_model, args.categories, args.modelfile, args.maxinstances, args.windowsize, args.checkpointdir)
     else:
         print("Option does not exist.")
         exit(0)
