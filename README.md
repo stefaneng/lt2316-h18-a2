@@ -69,6 +69,18 @@ plot_model(model, to_file="./imgs/lstm_simple_embed100.jpg", show_shapes=True)
 
 ![Simple](imgs/lstm_simple_embed100.jpg)
 
+### Accuracy
+
+| Model Name | Category (Binary) Accuracy| Word Categorical Accuracy|
+|---|---|---|
+|model_simple|0.9681347532408504|0.3361999659760581|
+|**model_simple_embed100**|**0.9683526979273666**|**0.3423803070357486**|
+|model_complex_drop1|0.967827227609544|0.332963182825656|
+|model_complex_drop5|0.9664929376111622|0.28742372375232883|
+
+
+`model_simple_embed100` is the final model I ended up using. I included both the categorical accuracy and the binary accuracy for the category prediction. The binary accuracy is extremely high because there are so many zeros in the category predictions that predicting all zeros would give a very high accuracy since the number of categories for a given image is much less than the total number of categories.
+
 ### Architecture Overview
 
 After experiementing with many different architectures and LSTM layers, what ended up working the best was a single LSTM layer with 50 nodes. Each word is represented as an integer less than 10000. Some of the other approaches I tried were to have the embedding layer input into two different LSTM layers which in turn seperately predicted either word prediction, or category prediction. This performed worse than other options as well. The other architectures I experimented with are described below, where two LSTM layers are used (passing sequences from first to the second).
