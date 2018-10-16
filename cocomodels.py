@@ -38,7 +38,7 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
 
     # Checkpointing and logging
     csv_logger = CSVLogger(logfile, append=True, separator=',')
-    filepath= checkpointdir + "lstm_simple.{epoch:02d}.hdf5"
+    filepath= checkpointdir + "lstm_simple_" + embed_size + "_" + "{epoch:02d}.hdf5"
     checkpoint = ModelCheckpoint(filepath, verbose=1)
 
     history = model.fit(X, [y_words, y_categories], batch_size=batch_size, callbacks=[earlystopping, checkpoint, csv_logger], epochs=epochs)
