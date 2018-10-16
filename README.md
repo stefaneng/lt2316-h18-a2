@@ -1,9 +1,19 @@
-# LT2316 H18 Assignment 2 - Stefan Eng
+# LT2316 H18 Assignment 2
 
-## Overview
+## Usage
 
+### `test.py`
+```
+# Example
+python test.py -P B --windowsize=3 --maxinstances=10 ./models/lstm_simple.hdf5 tokenizer10000.pickle
+```
 
-## Report
+### `perplexity.py`
+```
+# Example
+python perplexity.py --windowsize=3 --maxinstances=10 ./models/lstm_simple.hdf5 tokenizer10000.pickle
+```
+
 
 ###  Model Diagram
 
@@ -20,7 +30,7 @@ plot_model(model, to_file="./imgs/lstm_simple_embed100.jpg", show_shapes=True)
 
 ### Architecture Overview
 
-After experiementing with many different architectures and LSTM layers, what ended up working the best was a single LSTM layer with 50 nodes. Each word is represented as an integer less than 10000. Some of the other approaches I tried were to have the embedding layer input into two different LSTM layers which in turn seperately predicted either word prediction, or category prediction. This performed worse than other options as well. The other architectures I experimented with are described below, where two LSTM layers are used (passing sequences from first to the second). The word predictions have size 10000 with a softmax activation 
+After experiementing with many different architectures and LSTM layers, what ended up working the best was a single LSTM layer with 50 nodes. Each word is represented as an integer less than 10000. Some of the other approaches I tried were to have the embedding layer input into two different LSTM layers which in turn seperately predicted either word prediction, or category prediction. This performed worse than other options as well. The other architectures I experimented with are described below, where two LSTM layers are used (passing sequences from first to the second). The word predictions have size 10000 with a softmax activation
 
   - **Loss function**: Categorical Cross Entropy
   - **Batch Size**: 256
