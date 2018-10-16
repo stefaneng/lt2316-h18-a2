@@ -33,9 +33,6 @@ def predict(predict_sent, modelfile, traintokenizer, window_size, npredictions):
     
     model = load_model(modelfile)
     model.summary()
-    model.compile(optimizer='adam',
-                loss='categorical_crossentropy',
-                metrics=['accuracy'])
     
     encoded = tokenizer.texts_to_sequences([predict_sent])
     # Flip the word index around so we can look up word names based on the index
