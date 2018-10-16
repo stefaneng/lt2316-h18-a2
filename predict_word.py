@@ -22,7 +22,7 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def predict(predict_sent, modelfile, traintokenizer, window_size, npredictions):
+def predict(predict_sent, modelfile, traintokenizer, npredictions):
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
         
@@ -34,6 +34,10 @@ def predict(predict_sent, modelfile, traintokenizer, window_size, npredictions):
     model = load_model(modelfile)
     model.summary()
     
+    # Get the window size from the model input
+    window_size = model.layers[0].get_input_at(0).get_shape().as_list()[1]
+    print("Window size =", window_size)
+    
     encoded = tokenizer.texts_to_sequences([predict_sent])
     # Flip the word index around so we can look up word names based on the index
     word_lookup = {v: k for k, v in tokenizer.word_index.items()}
@@ -41,6 +45,8 @@ def predict(predict_sent, modelfile, traintokenizer, window_size, npredictions):
     predicted_words = []
     for i in range(npredictions):
         x = pad_sequences(encoded, padding='post', truncating='pre', maxlen=window_size)
+        
+        print("Predicting using words: ", " ".join([word_lookup[j] for j in x[0]]))
 
         word_preds, cat_preds = model.predict(np.array(x))
         
@@ -95,8 +101,7 @@ if __name__ == "__main__":
     parser.add_argument('sentence', type=str, help="Sentence we are trying to predict last word")
     parser.add_argument('modelfile', type=str, help="model file to evaluate")
     parser.add_argument('tokenizer', type=str, help="Saved tokenizer file from training run. (REQUIRED)")
-    parser.add_argument('--windowsize', type=int, help="Size of window. Must be the size given in `modelfile` (REQUIRED)")
-    parser.add_argument('-n', '--npredictions', type=int, help="Number of predictions to make (Default 1)", nargs='?', const=1)
+    parser.add_argument('-n', '--npredictions', type=int, help="Number of predictions to make (Default 1)", nargs='?', const=1, default=1)
     args = parser.parse_args()
 
-    predict(args.sentence, args.modelfile, args.tokenizer, args.windowsize, args.npredictions)
+    predict(args.sentence, args.modelfile, args.tokenizer, args.npredictions)

@@ -20,15 +20,20 @@ def optA():
 
 # If you do option B, you may want to place your code here.  You can
 # update the arguments as you need.
-def optB(modelfile, traintokenizer, maxinstances, window_size):
+def optB(modelfile, traintokenizer, maxinstances):
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
     with open('./categories_idindex.json') as f:
         cat_dict = json.load(f)
+        
     vocab_size = tokenizer.num_words
+    
     mycoco.setmode('test')
 
     model = load_model(modelfile)
+    
+    # Get the window size from the model input
+    window_size = model.layers[0].get_input_at(0).get_shape().as_list()[1]
 
     alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
     allcaptions = list(alliter)       
@@ -58,8 +63,6 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--maxinstances', type=int,
                         help="The maximum number of instances to be processed per category. (optional)",
                         required=False)
-    parser.add_argument('--windowsize', type=int,
-                    help="The window size used in training (REQUIRED)")
     parser.add_argument('modelfile', type=str, help="model file to evaluate")
     parser.add_argument('tokenizer', type=str, help="Saved tokenizer file from training run. (REQUIRED)")
     args = parser.parse_args()
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     if args.option == 'A':
         optA()
     elif args.option == 'B':
-        optB(args.modelfile, args.tokenizer, args.maxinstances, args.windowsize)
+        optB(args.modelfile, args.tokenizer, args.maxinstances)
     else:
         print("Option does not exist.")
         exit(0)

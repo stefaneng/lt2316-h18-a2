@@ -13,7 +13,7 @@ def perplexity_metric(y_true, y_pred):
     cross_entropy = categorical_crossentropy(y_true, y_pred)
     return K.pow(2.0, cross_entropy)
 
-def perplexity(modelfile, traintokenizer, maxinstances, window_size):
+def perplexity(modelfile, traintokenizer, maxinstances):
     with open(traintokenizer, 'rb') as f:
         tokenizer = pickle.load(f)
     with open('./categories_idindex.json') as f:
@@ -22,6 +22,9 @@ def perplexity(modelfile, traintokenizer, maxinstances, window_size):
     mycoco.setmode('test')
 
     model = load_model(modelfile)
+    
+    # Get the window size from the model input
+    window_size = model.layers[0].get_input_at(0).get_shape().as_list()[1]
 
     alliter = mycoco.iter_captions_cats(maxinstances=maxinstances)
     allcaptions = list(alliter)       
@@ -60,4 +63,4 @@ if __name__ == "__main__":
     parser.add_argument('tokenizer', type=str, help="Saved tokenizer file from training run. (REQUIRED)")
     args = parser.parse_args()
 
-    perplexity(args.modelfile, args.tokenizer, args.maxinstances, args.windowsize)
+    perplexity(args.modelfile, args.tokenizer, args.maxinstances)
