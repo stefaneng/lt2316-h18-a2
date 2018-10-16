@@ -1,6 +1,7 @@
 from keras.models import Model
 from keras.layers import Dense, LSTM, Embedding, Input, Dropout
 from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
+from keras.metrics import categorical_accuracy
 
 earlystopping = EarlyStopping(monitor='loss', patience=2)
 
@@ -23,8 +24,14 @@ def lstm_simple(X, y_words, y_categories, checkpointdir, vocab_size = 10000, bat
     model = Model(inputs=inputs, outputs=[word_pred, category_preds])
 
     model.compile(optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy'])
+                    loss={
+                        'word_prediction': 'categorical_crossentropy',
+                        'category_prediction': 'binary_crossentropy'
+                    }
+                    metrics=[
+                        categorical_accuracy
+                    #,'accuracy'
+                    ])
 
     if load_from:
         print("Loading weights from:", load_from)
